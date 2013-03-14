@@ -193,4 +193,4 @@ translateRNA (x:y:z:xs) = (translateRNACodon [x, y, z]):(translateRNA xs)
 
 printProteinString :: [Codon] -> String
 printProteinString [] = []
-printProteinString (x:xs) = show x ++ (printProteinString xs)
+printProteinString xs = concat xs
