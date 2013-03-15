@@ -1,0 +1,7 @@
+File structures are whacked
+I'm using python 3.3.something
+On a Linux distro
+FROM NOW ON IT'S GONNA LOOK LIKE
+    rosa(problem number).py
+    rosa(problem number)dat.txt [this is going to be input]
+    ANS.txt [this is the file that contains the answer, will be changed each time you run the program]
