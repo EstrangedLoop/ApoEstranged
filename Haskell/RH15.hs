@@ -1,5 +1,8 @@
 #! /usr/bin/runhaskell
 
+-- find the n-glycosylation motif in proteins
+-- http://rosalind.info/problems/mprt/
+
 import System.Environment
 import Network.HTTP.Wget
 import Control.Monad

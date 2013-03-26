@@ -1,5 +1,8 @@
 #! /usr/bin/runhaskell
 
+-- find the longest superstring of a set of strings
+-- http://rosalind.info/problems/long/
+
 import System.Environment
 import Data.List (tails, maximumBy)
 import Data.Function (on)

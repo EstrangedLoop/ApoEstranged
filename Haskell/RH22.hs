@@ -1,5 +1,8 @@
 #! /usr/bin/runhaskell
 
+-- form all ordered n-words from a given alphabet
+-- http://rosalind.info/problems/lexf/
+
 import System.Environment
 import Control.Monad
 

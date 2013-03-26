@@ -1,5 +1,8 @@
 #! /usr/bin/runhaskell
 
+-- translate all open reading frames of a DNA string
+-- http://rosalind.info/problems/orf/
+
 import System.Environment
 import Translate
 import Fasta

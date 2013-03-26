@@ -1,5 +1,8 @@
 #! /usr/bin/runhaskell
 
+-- locate reverse palindrome positions
+-- http://rosalind.info/problems/revp/
+
 import System.Environment
 import Translate
 import Fasta

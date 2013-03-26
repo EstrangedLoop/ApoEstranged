@@ -1,5 +1,8 @@
 #! /usr/bin/runhaskell
 
+-- calculate the probability of at least n AaBb individuals after gens generations
+-- http://rosalind.info/problems/lia/
+
 import System.Environment
 
 main :: IO ()

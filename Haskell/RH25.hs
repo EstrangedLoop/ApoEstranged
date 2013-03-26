@@ -1,5 +1,8 @@
 #! /usr/bin/runhaskell
 
+-- calculate the number of perfect matchings of the bonding graph of an RNA string
+-- http://rosalind.info/problems/pmch/
+
 import System.Environment
 import Fasta (readFastaFile, recordSequence)
 

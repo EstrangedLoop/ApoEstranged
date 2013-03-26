@@ -1,5 +1,8 @@
 #! /usr/bin/runhaskell
 
+-- calculate all permutations of the first n positive integers
+-- http://rosalind.info/problems/orf/
+
 import System.Environment
 import Data.List
 

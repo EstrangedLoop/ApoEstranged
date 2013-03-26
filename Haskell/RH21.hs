@@ -1,5 +1,8 @@
 #! /usr/bin/runhaskell
 
+-- remove introns and calculate a protein
+-- http://rosalind.info/problems/splc/
+
 import System.Environment
 import Fasta
 import Control.Monad

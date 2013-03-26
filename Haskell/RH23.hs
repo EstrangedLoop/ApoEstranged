@@ -1,5 +1,8 @@
 #! /usr/bin/runhaskell
 
+-- calculate the longest decreasing & increasing subsequences of a permutation sequence of natural numbers
+-- http://rosalind.info/problems/lgis/
+
 import System.Environment
 import Data.Map (Map)
 import qualified Data.Map as Map (insert, lookup, empty)

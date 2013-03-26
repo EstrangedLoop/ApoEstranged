@@ -1,5 +1,8 @@
 #! /usr/bin/runhaskell
 
+-- calculate the order of the translational preimage of a protein
+-- http://rosalind.info/problems/mrna/
+
 import System.Environment
 
 main :: IO ()

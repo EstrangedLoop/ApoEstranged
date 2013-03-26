@@ -1,5 +1,8 @@
 #! /usr/bin/runhaskell
 
+-- calculate the weight of a protein
+-- http://rosalind.info/problems/prtm/
+
 import System.Environment
 
 main :: IO ()
