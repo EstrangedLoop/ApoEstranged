@@ -81,6 +81,7 @@ instance Show Codon where
     show Tyr = "Y"
     show Val = "V"
     show STOP = "*"
+    show START = "^"
 
 translateRNACodon :: RNA -> Codon
 translateRNACodon [] = undefined
@@ -193,4 +194,4 @@ translateRNA (x:y:z:xs) = (translateRNACodon [x, y, z]):(translateRNA xs)
 
 printProteinString :: [Codon] -> String
 printProteinString [] = []
-printProteinString xs = concat xs
+printProteinString (x:xs) = show x ++ (printProteinString xs)
