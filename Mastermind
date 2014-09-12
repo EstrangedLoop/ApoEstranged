@@ -1,0 +1,164 @@
+#! /usr/bin/runhaskell
+
+import Data.List (delete)
+import Data.Char (toUpper)
+import Data.Map (Map)
+import qualified Data.Map as Map (insert, lookup, empty, elems)
+
+data Colour = Red | Yellow | Blue | Green | Orange | Purple | Error
+    deriving (Eq,Show,Bounded,Enum)
+
+data Answer = Black | White
+    deriving (Eq,Show)
+
+type Pattern = [Colour]
+type Feedback = [Answer]
+type Strategy = [Pattern] -> Pattern
+type Partition = Map Int Int
+
+colours :: Pattern
+colours = [Red, Yellow, Blue, Green, Orange, Purple]
+
+samepos :: Pattern -> Pattern -> Int
+samepos _ [] = 0
+samepos [] _ = 0
+samepos (x:xs) (y:ys)
+    | x == y        = samepos xs ys + 1
+    | otherwise     = samepos xs ys
+
+occurscount :: Pattern -> Pattern -> Int
+occurscount xs [] = 0
+occurscount xs (y:ys)
+    | y `elem` xs     = occurscount (delete y xs) ys + 1
+    | otherwise       = occurscount xs ys
+
+reaction :: Pattern -> Pattern -> [Answer]
+reaction secret guess = take n (repeat Black) ++ take m (repeat White)
+    where
+        n = samepos secret guess
+        m = occurscount secret guess - n
+
+allCodes :: Int -> [Pattern]
+allCodes n = allCodes' n colours
+    where
+        allCodes' :: Int -> Pattern -> [Pattern]
+        allCodes' 0 _ = []
+        allCodes' _ [] = []
+        allCodes' 1 xs = map (\x -> [x]) xs
+        allCodes' n (x:xs) = map (x:) (allCodes' (n-1) colours) ++ allCodes' n xs
+
+readColour :: String -> Colour
+readColour = readColour' . map toUpper
+    where
+        readColour' :: String -> Colour
+        readColour' "RED" = Red
+        readColour' "YELLOW" = Yellow
+        readColour' "BLUE" = Blue
+        readColour' "GREEN" = Green
+        readColour' "ORANGE" = Orange
+        readColour' _ = Error
+
+choose :: Int -> IO Pattern
+choose 0 = return []
+choose n = do
+               input <- getLine
+               let colour = readColour input
+               if colour == Error
+                   then do
+                            putStrLn "Colour not recognised. Please re-enter."
+                            choose n
+                   else do
+                            list <- choose (n - 1)
+                            return (colour : list)
+
+naiveStrategy :: Strategy
+naiveStrategy = head
+
+turn :: Strategy -> Pattern -> [Pattern] -> [Pattern]
+turn strategy secret possibilities = let guess = strategy possibilities
+                                         feedback = reaction secret guess
+                                         in filter (\x -> reaction x guess == feedback) possibilities
+
+play :: Strategy -> Pattern -> [Pattern] -> [Pattern]
+play strategy secret = play' []
+    where
+    play' :: [Pattern] -> [Pattern] -> [Pattern]
+    play' guesses (x:[]) = guesses
+    play' guesses possibilities = play' (strategy possibilities:guesses) (turn strategy secret possibilities)
+    
+game :: Strategy -> Int -> IO ()
+game strategy n = do
+                    putStrLn "Welcome to Mastermind! Please enter your secret code."
+                    putStrLn "Available colours: blue, red, green, orange, yellow."
+                    secret <- choose n
+                    print (play strategy secret (allCodes n))
+
+naiveGame :: Int -> IO ()
+naiveGame = game naiveStrategy
+
+split :: Pattern -> Pattern -> (Int, Int)
+split p1 p2 = (samepos p1 p2, occurscount p1 p2)
+
+buildPartition :: Pattern -> [Pattern] -> Partition
+buildPartition pattern codes = countUp (map (split pattern) codes) Map.empty
+    where
+    countUp :: [(Int, Int)] -> Partition -> Partition
+    countUp [] partition = partition
+    countUp ((b,w):xs) partition = let encode = 2^b + 3^w in
+                                        case Map.lookup encode partition of
+                                             Just n  -> countUp xs (Map.insert encode (n + 1) partition)
+                                             Nothing -> countUp xs (Map.insert encode 1 partition)
+
+
+largestPartitioner :: Strategy
+largestPartitioner (p:possibilities) = largestPartitioner' (largest (buildPartition p (p:possibilities))) p possibilities
+    where
+        largest :: Partition -> Int
+        largest = maximum . Map.elems
+        largestPartitioner' :: Int -> Pattern -> [Pattern] -> Pattern
+        largestPartitioner' _ y [] = y
+        largestPartitioner' n y (x:xs)
+            | largestPartition < n    = largestPartitioner' largestPartition x xs
+            | otherwise               = largestPartitioner' n y xs
+                where
+                    largestPartition :: Int
+                    largestPartition = largest (buildPartition x (p:possibilities))
+
+ex2Game :: Int -> IO ()
+ex2Game = game largestPartitioner
+
+mostPartitioner :: [Pattern] -> Pattern
+mostPartitioner (p:possibilities) = mostPartitioner' (numberOfPartitions (buildPartition p (p:possibilities))) p possibilities
+    where
+        numberOfPartitions :: Partition -> Int
+        numberOfPartitions = length . Map.elems
+        mostPartitioner' :: Int -> Pattern -> [Pattern] -> Pattern
+        mostPartitioner' _ y [] = y
+        mostPartitioner' n y (x:xs)
+            | greatest > n    = mostPartitioner' greatest x xs
+            | otherwise       = mostPartitioner' n y xs
+                where
+                greatest :: Int
+                greatest = numberOfPartitions (buildPartition x (p:possibilities))
+
+ex3Game :: Int -> IO ()
+ex3Game = game mostPartitioner
+
+expectedSize :: Pattern -> [Pattern] -> Double
+expectedSize pattern possibilities = let partition = buildPartition pattern possibilities in
+                                         (fromIntegral $ sum (map (^2) (Map.elems partition))) / (fromIntegral $ length possibilities)
+
+smallestExpectedSize :: [Pattern] -> Pattern
+smallestExpectedSize (p:possibilities) = smallestExpectedSize' (expectedSize p (p:possibilities)) p possibilities
+    where
+        smallestExpectedSize' :: Double -> Pattern -> [Pattern] -> Pattern
+        smallestExpectedSize' _ y [] = y
+        smallestExpectedSize' r y (x:xs)
+            | smallest < r    = smallestExpectedSize' smallest x xs
+            | otherwise       = smallestExpectedSize' r y xs
+                where
+                smallest :: Double
+                smallest = expectedSize x possibilities
+
+ex4Game :: Int -> IO ()
+ex4Game = game smallestExpectedSize
